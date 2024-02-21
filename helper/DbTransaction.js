@@ -1,21 +1,9 @@
 const mysql = require("mysql2/promise");
+const db = require("../config/db");
 
 class DbConn {
   constructor() {
-    this.pool = mysql.createPool({
-      host: process.env.MYSQLHOST,
-      port: process.env.MYSQLPORT,
-      user: process.env.MYSQLUSER,
-      database: process.env.MYSQLDB,
-      password: process.env.MYSQLPASS,
-      waitForConnections: true,
-      connectionLimit: 10,
-      maxIdle: 10,
-      idleTimeout: 3 * 1000,
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 0,
-      multipleStatements: false,
-    });
+    this.pool = db;
   }
 
   async init() {
@@ -133,6 +121,8 @@ class DbConn {
     } catch (error) {
       console.log(error);
       throw new Error(error);
+    } finally {
+      this.client.release();
     }
   }
 
