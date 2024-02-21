@@ -6,7 +6,7 @@ const checkBook = async (req, res, next) => {
   const book_date = data.book_date;
   const time_start = data.time_start;
   const duration = data.duration;
-  const Client = new DbTrans();
+  const Client = new DbConn();
   await Client.init();
   try {
     const isBooked = await Client.select(
@@ -28,7 +28,7 @@ const checkBook = async (req, res, next) => {
     AND is_active = 1
     AND (
       TIME(?) >= time_start
-      AND ADDTIME(
+      OR ADDTIME(
         TIME(?),
         CONCAT(?, ':00:00')
       ) <= ADDTIME(

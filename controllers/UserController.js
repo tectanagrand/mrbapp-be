@@ -32,7 +32,7 @@ const UserController = {
       const emailoruname = req.body.username;
       const password = req.body.password;
       const checkUserData = await Client.select(
-        "SELECT email, username, password, nama FROM MST_USER where username = ? or email = ?",
+        "SELECT email, username, password, nama, id_user FROM MST_USER where username = ? or email = ?",
         [emailoruname, emailoruname]
       );
       const data = checkUserData[0][0];
@@ -41,6 +41,7 @@ const UserController = {
           email: data.email,
           username: data.username,
           name: data.nama,
+          id_user: data.id_user,
         },
         process.env.SECRETJWT,
         { expiresIn: "6h" }
@@ -50,6 +51,7 @@ const UserController = {
           email: data.email,
           username: data.username,
           name: data.nama,
+          id_user: data.id_user,
         },
         process.env.SECRETJWT,
         { expiresIn: "5m" }
@@ -72,6 +74,7 @@ const UserController = {
             data: {
               name: data.username,
               email: data.email,
+              id_user: data.id_user,
               accessToken: accessToken,
               refreshToken: refreshToken,
             },
