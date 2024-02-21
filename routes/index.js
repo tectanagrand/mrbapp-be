@@ -4,15 +4,16 @@ const router = express.Router();
 const Example = require("../controllers/ExampleController");
 const Book = require("./Book");
 const User = require("./User");
-
+const Room = require("./Room");
 //@using router
 // router.use('/api/<endpoint>', <controller>)
-router.use("/api/room", Book);
+router.use("/api/book", Book);
 router.use("/api/user", User);
+router.use("/api/room", Room);
 
 router.use("/api", (req, res) => {
   res.status(200).send({
-    message: "Connected",
+    message: process.env,
   });
 });
 

@@ -30,11 +30,13 @@ const BookReqControllers = {
       agenda: data.agenda,
       prtcpt_ctr: data.participant,
       remark: data.remark,
-      is_active: data.is_active,
+      is_active: 1,
     };
     try {
       const result = await Client.insert(payload, "req_book");
-      res.status(200).send(result);
+      res.status(200).send({
+        message: "Room Booked",
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
@@ -48,6 +50,23 @@ const BookReqControllers = {
       const showall = await Client.select("SELECT * FROM req_book");
       res.status(200).send(showall);
     } catch (error) {
+      res.status(500).send(error);
+    }
+  },
+
+  showBookbyRoom: async (req, res) => {
+    const Client = new DbConn();
+    const roomId = req.query.roomid;
+    await Client.init();
+    try {
+      const get = await Client.select(
+        "SELECT * FROM req_book where id_ruangan = ? and is_active = 1",
+        [roomId]
+      );
+      const books = get[0];
+      res.status(200).send({ data: books });
+    } catch (error) {
+      console.log(error);
       res.status(500).send(error);
     }
   },
