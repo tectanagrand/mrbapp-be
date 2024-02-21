@@ -5,8 +5,10 @@ const Example = require("../controllers/ExampleController");
 const Book = require("./Book");
 const User = require("./User");
 const Room = require("./Room");
+const Room = require("./Room");
 //@using router
 // router.use('/api/<endpoint>', <controller>)
+router.use("/api/book", Book);
 router.use("/api/book", Book);
 router.use("/api/user", User);
 router.use("/api/room", Room);
