@@ -10,11 +10,11 @@ const User = require("./User");
 router.use("/api/room", Book);
 router.use("/api/user", User);
 
-router.use("/api", (req, res) => {
-  res.status(200).send({
-    message: "Connected",
-  });
-});
+// router.use("/api", (req, res) => {
+//   res.status(200).send({
+//     message: "Connected",
+//   });
+// });
 
 router.get("/api/example", Example.exampleMethod);
 
