@@ -48,7 +48,7 @@ class DbConn {
         ` (${arrayOfValkey.join(", ")})` +
         " VALUES " +
         `(${arrayOfparam.join(", ")}) ;`;
-      const insertQ = this.client.query(query, arrayVal);
+      const insertQ = await this.client.query(query, arrayVal);
       await this.client.commit();
       return insertQ;
     } catch (error) {
