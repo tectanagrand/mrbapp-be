@@ -33,7 +33,7 @@ const RoomControllers = {
       });
       const dataGet = await Promise.all(promise);
       rooms.forEach((item, index) => {
-        const fac = dataGet[index][0].map((item) => item.nam);
+        const fac = dataGet[index][0].map((item) => item.nama);
         roomFac.push({ ...item, fasilitas: fac });
       });
       res.status(200).send({ data: roomFac });
