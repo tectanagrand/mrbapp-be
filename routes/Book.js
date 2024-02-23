@@ -6,5 +6,7 @@ const router = express.Router();
 router.post("/", BookCheck, BookReqController.createBook);
 router.get("/", BookReqController.showAllBook);
 router.patch("/", BookReqController.updateBook);
+router.get("/byroom", BookReqController.showBookbyRoom);
+// http://localhost:5000/api/book/byroom?roomid=ROOM003
 
 module.exports = router;
