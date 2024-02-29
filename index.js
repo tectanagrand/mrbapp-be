@@ -12,6 +12,7 @@ const whitelist = require("./config/allowedOrigins");
 const app = express();
 const credentials = require("./middleware/credential");
 const routers = require("./routes");
+const BookingChores = require("./helper/BookingChores");
 
 const corsOption = {
   origin: function (req, callback) {
