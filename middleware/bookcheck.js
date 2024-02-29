@@ -27,14 +27,10 @@ const checkBook = async (req, res, next) => {
     AND book_date = ?
     AND is_active = 1
     AND (
-      TIME(?) >= time_start
-      OR ADDTIME(
-        TIME(?),
-        CONCAT(?, ':00:00')
-      ) <= ADDTIME(
-        TIME(time_start),
-        CONCAT(duration, ':00:00')
-      )
+      ? BETWEEN time_start 
+      AND ADDTIME( TIME( time_start ), CONCAT( duration, ':00:00' ) ) 
+      OR ADDTIME( TIME( ? ), CONCAT( ?, ':00:00' ) ) BETWEEN time_start 
+    AND ADDTIME( TIME( time_start ), CONCAT( duration, ':00:00' ) ) 
     ) ;
     `,
       [room, book_date, time_start, time_start, duration]
