@@ -3,6 +3,7 @@ const Emailer = require("../helper/Emailer");
 const OTPHandler = require("../helper/OTPHandler");
 const uuid = require("uuidv4");
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 const { hashPassword, validatePassword } = require("../middleware/hashpass");
 
 const UserController = {
@@ -33,6 +34,7 @@ const UserController = {
       const emailoruname = req.body.username;
       const password = req.body.password;
       const subscription = JSON.parse(req.body.subscription);
+      const now = new Date();
       const checkUserData = await client.query(
         "SELECT email, username, password, nama, id_user FROM MST_USER where username = ? or email = ?",
         [emailoruname, emailoruname]
@@ -56,9 +58,10 @@ const UserController = {
         subscription.sub.endpoint,
         subscription.sub.keys.p256dh,
         subscription.sub.keys.auth,
+        moment(now).format(),
       ];
       let insertNotifSub = await client.query(
-        "INSERT INTO notif_sub(id_user, endpoint_sub, p256dh_sub, auth_sub) VALUES(?,?,?,?)",
+        "INSERT INTO notif_sub(id_user, endpoint_sub, p256dh_sub, auth_sub, created_date) VALUES(?,?,?,?,?)",
         dataNotifSub
       );
       await client.commit();

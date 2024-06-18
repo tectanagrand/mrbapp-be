@@ -1,4 +1,5 @@
 const DbConn = require("../helper/DbTransaction");
+const Notif = require("../helper/NotificationManager");
 const moment = require("moment");
 const uuid = require("uuidv4");
 
@@ -21,6 +22,19 @@ const BookReqControllers = {
     await Client.init();
     const data = req.body.data;
     const today = new Date();
+    const id_book = uuid.uuid();
+    const id_notif = uuid.uuid();
+    const bookDate = moment(
+      new Date(`${data.book_date} ${data.time_start}`)
+    ).subtract(15, "m");
+    await Notif.CreateNewCron(
+      bookDate,
+      "Meeting Check In Reminder",
+      "Please check in for agenda :" + data.agenda,
+      data.id_user,
+      id_book,
+      id_notif
+    );
     const payload = {
       id_ruangan: data.id_ruangan,
       id_user: data.id_user,
@@ -31,8 +45,9 @@ const BookReqControllers = {
       agenda: data.agenda,
       prtcpt_ctr: data.participant,
       remark: data.remark,
-      id_book: uuid.uuid(),
+      id_book: id_book,
       is_active: 1,
+      id_notif: id_notif,
     };
     try {
       const result = await Client.insert(payload, "req_book");
@@ -42,6 +57,67 @@ const BookReqControllers = {
     } catch (error) {
       console.log(error);
       res.status(500).send({ message: error.message });
+    }
+  },
+
+  editBook: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      const data = req.body.data;
+      const id_book = req.body.id_book;
+      await client.beginTransaction();
+      // const [dataBook, _] = await client.query('SELECT * FROM req_book WHERE id_book = ?', [id_book]) ;
+      const editBookVal = data.map((item) => ({
+        [item.key]: item.value,
+      }));
+      // const startTime = moment(`${dataBook.book_date} ${dataBook.time_start}`) ;
+      // const timeNow = moment() ;
+      // const minDiff = timeNow.diff(startTime, 'minutes') * -1;
+      // if(minDiff < 15 ) {
+      //   throw new Error('EXCEED EDIT') ;
+      // }
+      const [query, value] = Client.updateQuery(
+        editBookVal,
+        { id_book: id_book },
+        "req_book"
+      );
+      const updateData = await client.query(query, value);
+      res.status(200).send({
+        message: `${id_book} is updated`,
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: error.message,
+      });
+      // if(error.message === 'EXCEED EDIT') {
+      //   res.status(400).send({
+      //     message : ``
+      //   })
+      // }
+    }
+  },
+
+  cancelBook: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      const id_book = req.body.id_book;
+      await client.beginTransaction();
+
+      const [query, value] = Client.updateQuery(
+        { is_active: 0 },
+        { id_book: id_book },
+        "req_book"
+      );
+      const updateData = await client.query(query, value);
+      res.status(200).send({
+        message: `${id_book} is cancled`,
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: error.message,
+      });
     }
   },
 
@@ -70,6 +146,7 @@ const BookReqControllers = {
         id_book,
         id_user,
         MR.nama as nama_ruangan,
+        MR.id_ruangan as id_room,
         agenda,
         is_active,
         time_start,

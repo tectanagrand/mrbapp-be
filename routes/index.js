@@ -12,7 +12,8 @@ const Notif = require("../controllers/NotificationController");
 router.use("/api/book", Book);
 router.use("/api/user", User);
 router.use("/api/room", Room);
-router.get("/api/notif", Notif.PushNotif);
+router.get("/api/notif", Notif.PushMultiNotif);
+router.get("/api/testcron", Example.cronTest);
 
 // router.use("/api", (req, res) => {
 //   res.status(200).send({

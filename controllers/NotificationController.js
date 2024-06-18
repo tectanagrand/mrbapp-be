@@ -1,4 +1,5 @@
 const webpush = require("web-push");
+const DbConn = require("../helper/DbTransaction");
 webpush.setVapidDetails(
   "mailto:rtektano@gmail.com",
   process.env.PUBLICVAPID,
@@ -10,16 +11,16 @@ const NotificationController = {};
 NotificationController.PushNotif = async (req, res) => {
   const subscription = {
     endpoint:
-      "https://wns2-pn1p.notify.windows.com/w/?token=BQYAAADZ7eb1B4dAiV1XsHorJH1dFI1k1c5tVItZP5YFAhh378svibec%2bBPME6FabxfQ%2bBenhvunXdyN1q%2f2No93M5zDjbl6JDA3uBlw472uNBCTVuPJeVxBSGDWGmJF3P8JTzyENrjoLSc%2fHNA6uNDzPxV0Lf3rgGTR%2bA1ypNTycF567aCw96cz%2b%2feVLbQKTObGrFwLa689IGmF9z9o4WLtLHoa4Pjg9H7CXs%2bJH5w2I%2finEr6FveVEJy52HMk7vnTTk%2fGoQ%2b%2b5uB97axFuH5pqTlaQGwlUbuRvEYPFStE62ZrOySZ%2fxi7usH2uoY5OUi8iJb%2ft4A7kkk2omtat%2feREDtRp",
+      "https://updates.push.services.mozilla.com/wpush/v2/gAAAAABl4CUVUVMDrl0jyrLlr1C1BPTB8AMsS1l5t6ADnLDqg5R6gnyY20GHvlI6me4ZLJGk623QdFCFcl5P2v6FqsBaINvhO3xhteV9i7o2v1yWqx1jZVF88GV7wRaKaxxUjnsCAUSbsk973UvgjP5UxrMTylaRPgW7VbyH-colCR-iKMYFYtM",
     expirationTime: null,
     keys: {
       p256dh:
-        "BORk8hyWjWuTgUjUPCuNyD8_49eELUBaO2xcE5EImQeb85pYQUkDB80ZXHMDXgHarzkj58M3c9aXX2D9DJ2G2tg",
-      auth: "5MYfFnGUGFsX-xo0JHunpw",
+        "BNoofElc48kTClYU_JrZ7UGhUdmYZO4djtzzouOFx_xE21zT0JP9-wRlxdVHCKqVvcxeVtnzS6WiZCsdsjlLbDY",
+      auth: "uTfqXZXJ1zaiVSbIsH7buA",
     },
   };
   try {
-    webpush.sendNotification(
+    await webpush.sendNotification(
       subscription,
       JSON.stringify({
         title: "Hello Web Push",
@@ -30,6 +31,45 @@ NotificationController.PushNotif = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
+  }
+};
+
+NotificationController.PushMultiNotif = async (req, res) => {
+  const Client = new DbConn();
+  const client = await Client.initConnection();
+  const userId = "ecbd2ab7-5512-43e4-a76c-6f3cd218db10";
+  try {
+    const getNotifTrg = await client.query(
+      `SELECT * FROM notif_sub WHERE id_user = ?`,
+      [userId]
+    );
+    const dataTarget = getNotifTrg[0];
+    const promises = [];
+    dataTarget.forEach((item) => {
+      const subscription = {
+        endpoint: item.endpoint_sub,
+        keys: {
+          p256dh: item.p256dh_sub,
+          auth: item.auth_sub,
+        },
+      };
+      promises.push(
+        webpush.sendNotification(
+          subscription,
+          JSON.stringify({
+            title: "Hello Web Push",
+            message: "Your web push notification is here!",
+          })
+        )
+      );
+    });
+    await Promise.all(promises);
+    res.status(200).send({ message: "success" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  } finally {
+    client.release();
   }
 };
 

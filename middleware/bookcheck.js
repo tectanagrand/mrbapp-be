@@ -13,13 +13,10 @@ const checkBook = async (req, res, next) => {
       `
       SELECT
       id_ruangan,
-      book_date,
-      TIME(time_start),
+      DATE_FORMAT(book_date, '%Y-%m-%d') as book_date,
+      DATE_FORMAT(time_start, '%H:%i') as time_start,
       duration,
-      ADDTIME(
-        TIME(time_start),
-        CONCAT(duration, ':00:00')
-      ) AS time_end
+      DATE_FORMAT(DATE_ADD(time_start, INTERVAL duration HOUR ), '%H:%i') as time_end
     FROM
       req_book
     WHERE
@@ -36,19 +33,17 @@ const checkBook = async (req, res, next) => {
       [room, book_date, time_start, time_start, duration]
     );
     if (isBooked[0].length > 0) {
-      throw new Error("Room Booked");
-    }
-    next();
-  } catch (error) {
-    if (error.message === "Room Booked") {
       res.status(400).send({
         message: `${room} is booked`,
+        booked: isBooked[0],
       });
     } else {
-      res.status(500).send({
-        message: error.message,
-      });
+      next();
     }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+    });
   }
 };
 

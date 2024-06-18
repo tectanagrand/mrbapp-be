@@ -1,6 +1,7 @@
 //@clean up booking function
 require("dotenv").config({ path: `.env.development` });
 const moment = require("moment");
+const NotificationManager = require("./NotificationManager");
 
 const DbConn = require("./DbTransaction");
 
@@ -81,6 +82,7 @@ BookingChores.CleanUp = async () => {
 setInterval(async () => {
   try {
     const result = await BookingChores.CleanUp();
+    await NotificationManager.CleanUpCron();
     console.log(result);
   } catch (error) {
     console.log(error);

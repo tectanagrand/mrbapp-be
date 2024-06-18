@@ -13,6 +13,7 @@ const app = express();
 const credentials = require("./middleware/credential");
 const routers = require("./routes");
 const BookingChores = require("./helper/BookingChores");
+const NotificationManager = require("./helper/NotificationManager");
 
 const corsOption = {
   origin: function (req, callback) {
@@ -37,3 +38,6 @@ app.use(routers);
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`App running on ${process.env.PORT}`);
 });
+
+NotificationManager.CleanUpCron();
+NotificationManager.ReRunCron();
